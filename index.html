@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark" />
-    <title>机密档案 · 访问终端</title>
+    <title>夜航通讯 · 深度报道</title>
     <meta
       http-equiv="Content-Security-Policy"
       content="
@@ -341,6 +341,124 @@
         color: rgba(72,255,234,0.9);
       }
 
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: var(--radius);
+        border: 1px solid rgba(72,255,234,0.18);
+        background: rgba(0,0,0,0.16);
+        box-shadow: 0 0 28px rgba(0,160,255,0.10);
+        margin-bottom: 14px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 10px;
+        font-family: var(--mono);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(233,243,255,0.90);
+      }
+      .brand small {
+        color: rgba(206,226,255,0.65);
+        letter-spacing: 0.04em;
+        text-transform: none;
+      }
+      .nav a {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: rgba(206,226,255,0.72);
+        padding: 6px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(72,255,234,0.12);
+        background: rgba(0,0,0,0.14);
+      }
+      .nav a:hover {
+        border-color: rgba(72,255,234,0.35);
+        text-decoration: none;
+      }
+
+      .article-head {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+        color: rgba(206,226,255,0.68);
+        font-family: var(--mono);
+        font-size: 12px;
+      }
+      .meta .tag {
+        border: 1px solid rgba(0,160,255,0.20);
+        color: rgba(0,160,255,0.92);
+        background: rgba(0,0,0,0.14);
+        padding: 5px 10px;
+        border-radius: 999px;
+      }
+      .meta .sep {
+        opacity: 0.45;
+      }
+      .lede {
+        margin: 0;
+        color: rgba(206,226,255,0.78);
+        line-height: 1.8;
+        font-size: 15px;
+      }
+      .article-body {
+        margin-top: 12px;
+        color: rgba(233,243,255,0.90);
+        line-height: 1.9;
+        font-size: 15px;
+      }
+      .article-body p { margin: 0 0 12px 0; }
+      .article-body blockquote {
+        margin: 14px 0;
+        padding: 10px 12px;
+        border-left: 3px solid rgba(72,255,234,0.55);
+        background: rgba(0,0,0,0.16);
+        border-radius: 10px;
+        color: rgba(233,243,255,0.86);
+      }
+
+      details {
+        border-radius: 14px;
+        border: 1px solid rgba(72,255,234,0.18);
+        background: rgba(0,0,0,0.16);
+        overflow: hidden;
+      }
+      summary {
+        cursor: pointer;
+        list-style: none;
+        padding: 12px 12px;
+        font-family: var(--mono);
+        font-size: 12.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(206,226,255,0.78);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      summary::-webkit-details-marker { display: none; }
+      .chev {
+        width: 10px; height: 10px;
+        border-right: 2px solid rgba(72,255,234,0.65);
+        border-bottom: 2px solid rgba(72,255,234,0.65);
+        transform: rotate(-45deg);
+        transition: transform .12s ease;
+        opacity: 0.8;
+      }
+      details[open] .chev { transform: rotate(45deg); }
+
+      .diag-inner { padding: 12px; }
+
       dialog {
         border: 1px solid rgba(72,255,234,0.28);
         border-radius: 18px;
@@ -397,75 +515,105 @@
     <div class="scanline"></div>
 
     <main class="wrap">
-      <header>
-        <div class="kicker"><span class="dot"></span> secure access gateway · build 26.04</div>
-        <h1>机密档案访问终端</h1>
-        <p class="subtitle">
-          这是一个演示页面：只有在你明确点击同意后，它才会在<strong>本页</strong>显示你的公网 IP，以及（若你授权）浏览器定位信息。不会把这些数据发送到任何接收端。
-        </p>
-      </header>
+      <nav class="nav" aria-label="site navigation">
+        <div class="brand">
+          夜航通讯 <small>Nightwatch Dispatch</small>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <a href="#story">今日头条</a>
+          <a href="#privacy">隐私</a>
+        </div>
+      </nav>
 
       <section class="grid" aria-label="main content">
         <article class="panel">
-          <div class="panel-inner hud">
-            <div class="hud-top">
-              <div class="badge">
-                <span style="opacity:.8">session</span>
-                <strong id="sessionId">—</strong>
+          <div class="panel-inner" id="story">
+            <div class="article-head">
+              <div class="kicker"><span class="dot"></span> 深度报道 · 城市观察 · build 26.04</div>
+              <h1>霓虹雨幕下的信号：一篇关于“可见与不可见”的短文</h1>
+              <div class="meta">
+                <span class="tag">NEWS</span>
+                <span class="sep">•</span>
+                <span>编辑部</span>
+                <span class="sep">•</span>
+                <span id="pubDate">—</span>
+                <span class="sep">•</span>
+                <span class="badge" style="padding:6px 10px; border-color: rgba(72,255,234,0.18);">
+                  <span style="opacity:.75">session</span>
+                  <strong id="sessionId">—</strong>
+                </span>
               </div>
-              <div class="meter" aria-hidden="true"><span></span></div>
-            </div>
-
-            <div class="b-text" aria-label="Text B">
-              <h2>Text B</h2>
-              <p id="textB">
-                「当你看到这段文字，说明你已经穿过了噪声与假信号。下一步，按下按钮，解锁档案。」<span class="cursor" aria-hidden="true"></span>
+              <p class="lede">
+                在任何一座城市里，信息都像雨：看得见的落在路面，看不见的渗进缝隙。你以为你只是“打开了一篇文章”，但其实你正在和权限、提示、同意、以及透明度做一次面对面的谈判。
               </p>
             </div>
 
-            <div class="cta-row">
-              <button class="btn" id="btnStart">解锁机密档案</button>
-              <button class="btn secondary" id="btnReset" disabled>重置本页结果</button>
-              <span class="pill warn" id="statusPill" role="status" aria-live="polite">
-                <span class="led" aria-hidden="true"></span>
-                <span id="statusText">等待同意</span>
-              </span>
+            <div class="article-body">
+              <p id="textB">
+                当你看到这段文字，说明你已经穿过了噪声与假信号。真正的分界线从来不在“是否能收集”，而在“是否被清楚告知、是否能拒绝、是否只在本地展示”。<span class="cursor" aria-hidden="true"></span>
+              </p>
+              <blockquote>
+                “最可靠的安全感，来自把规则写在光里：要什么、为什么、存不存、传不传。” —— 夜航通讯·编辑部
+              </blockquote>
+              <p>
+                你可以在右侧的“隐私与诊断”中查看本页的演示信息（仅在你同意后），并随时重置清空显示。
+              </p>
             </div>
 
-            <p class="fineprint">
-              说明：公网 IP 来自 <code>api.ipify.org</code>；城市/地区解析来自 <code>api.bigdatacloud.net</code> 的反向地理编码（仅基于你授权的经纬度）。若你拒绝定位，本页仍可显示 IP。
+            <p class="fineprint" id="privacy">
+              隐私提示：本页仅在你明确同意后，才会在<strong>本页</strong>显示你的公网 IP 与（可选）定位信息；不会把这些数据发送到任何接收端。公网 IP 来自 <code>api.ipify.org</code>；城市/地区解析来自 <code>api.bigdatacloud.net</code>（基于你授权的经纬度）。
             </p>
           </div>
         </article>
 
         <aside class="panel">
           <div class="panel-inner side">
-            <div class="kv" aria-label="results">
-              <div class="row">
-                <div class="k">公 网 IP</div>
-                <div class="v" id="ipValue">—</div>
-              </div>
-              <div class="row">
-                <div class="k">定位权限</div>
-                <div class="v" id="permValue">—</div>
-              </div>
-              <div class="row">
-                <div class="k">经 纬 度</div>
-                <div class="v" id="latlngValue">—</div>
-              </div>
-              <div class="row">
-                <div class="k">城市 / 地区</div>
-                <div class="v" id="placeValue">—</div>
-              </div>
-              <div class="row">
-                <div class="k">地图链接</div>
-                <div class="v" id="mapValue">—</div>
-              </div>
-              <div class="row">
-                <div class="k">运行日志</div>
-                <div class="v" id="logValue">—</div>
-              </div>
+            <div class="cta-row" style="justify-content: space-between;">
+              <span class="pill warn" id="statusPill" role="status" aria-live="polite">
+                <span class="led" aria-hidden="true"></span>
+                <span id="statusText">等待同意</span>
+              </span>
+              <div class="meter" aria-hidden="true" style="width: 160px;"><span></span></div>
             </div>
+
+            <details>
+              <summary>
+                隐私与诊断（本地展示）
+                <span class="chev" aria-hidden="true"></span>
+              </summary>
+              <div class="diag-inner">
+                <div class="cta-row" style="margin-bottom: 10px;">
+                  <button class="btn" id="btnStart">查看并同意</button>
+                  <button class="btn secondary" id="btnReset" disabled>重置</button>
+                </div>
+                <div class="kv" aria-label="results">
+                  <div class="row">
+                    <div class="k">公 网 IP</div>
+                    <div class="v" id="ipValue">—</div>
+                  </div>
+                  <div class="row">
+                    <div class="k">定位权限</div>
+                    <div class="v" id="permValue">—</div>
+                  </div>
+                  <div class="row">
+                    <div class="k">经 纬 度</div>
+                    <div class="v" id="latlngValue">—</div>
+                  </div>
+                  <div class="row">
+                    <div class="k">城市 / 地区</div>
+                    <div class="v" id="placeValue">—</div>
+                  </div>
+                  <div class="row">
+                    <div class="k">地图链接</div>
+                    <div class="v" id="mapValue">—</div>
+                  </div>
+                  <div class="row">
+                    <div class="k">运行日志</div>
+                    <div class="v" id="logValue">—</div>
+                  </div>
+                </div>
+              </div>
+            </details>
           </div>
         </aside>
       </section>
@@ -715,6 +863,10 @@
 
       seedSession();
       resetUI();
+      $("pubDate").textContent = new Date().toLocaleDateString("zh-Hans", { year: "numeric", month: "short", day: "2-digit" });
+
+      // 页面加载即提示同意（不在未同意时自动获取信息）
+      queueMicrotask(() => showConsent());
     </script>
   </body>
 </html>
