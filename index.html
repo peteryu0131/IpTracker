@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>机密档案 · 访问终端</title>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src https://api.ipify.org https://api.bigdatacloud.net;
+        base-uri 'none';
+        frame-ancestors 'none';
+        form-action 'none';
+      "
+    />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --panel: rgba(10, 14, 24, 0.72);
+        --panel-2: rgba(6, 9, 16, 0.6);
+        --text: rgba(233, 243, 255, 0.92);
+        --muted: rgba(206, 226, 255, 0.7);
+        --line: rgba(72, 255, 234, 0.22);
+        --line-2: rgba(0, 160, 255, 0.16);
+        --neon: #48ffea;
+        --neon2: #00a0ff;
+        --danger: #ff3d88;
+        --ok: #7dff6a;
+        --shadow: 0 0 24px rgba(72, 255, 234, 0.15), 0 0 80px rgba(0, 160, 255, 0.12);
+        --radius: 18px;
+        --radius2: 12px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 900px at 70% 10%, rgba(0, 160, 255, 0.18), transparent 60%),
+          radial-gradient(900px 700px at 20% 70%, rgba(72, 255, 234, 0.16), transparent 55%),
+          linear-gradient(180deg, #04050a, #05060a 30%, #03040a);
+        color: var(--text);
+        font-family: var(--sans);
+        overflow-x: hidden;
+      }
+
+      .noise {
+        pointer-events: none;
+        position: fixed;
+        inset: 0;
+        background-image:
+          repeating-linear-gradient(0deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 1px, transparent 1px, transparent 3px),
+          radial-gradient(circle at 30% 20%, rgba(255,255,255,0.035), transparent 35%),
+          radial-gradient(circle at 80% 80%, rgba(255,255,255,0.02), transparent 40%);
+        mix-blend-mode: overlay;
+        opacity: 0.25;
+        animation: drift 12s linear infinite;
+      }
+      @keyframes drift {
+        0% { transform: translate3d(0, 0, 0); }
+        50% { transform: translate3d(-1.4%, 1.2%, 0); }
+        100% { transform: translate3d(0, 0, 0); }
+      }
+
+      .scanline {
+        pointer-events: none;
+        position: fixed;
+        inset: -30vh 0 0 0;
+        background: linear-gradient(180deg, transparent, rgba(72, 255, 234, 0.09), transparent);
+        height: 30vh;
+        filter: blur(0.2px);
+        animation: scan 5.2s ease-in-out infinite;
+        opacity: 0.9;
+      }
+      @keyframes scan {
+        0% { transform: translateY(-30vh); opacity: 0.45; }
+        25% { opacity: 0.95; }
+        100% { transform: translateY(120vh); opacity: 0.35; }
+      }
+
+      .wrap {
+        position: relative;
+        width: min(1100px, calc(100% - 40px));
+        margin: 44px auto 80px;
+      }
+
+      header {
+        display: grid;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+      .kicker {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        font-family: var(--mono);
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-size: 12px;
+      }
+      .kicker .dot {
+        width: 8px; height: 8px; border-radius: 999px;
+        background: var(--neon);
+        box-shadow: 0 0 12px rgba(72,255,234,0.85);
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 3.2vw, 44px);
+        line-height: 1.05;
+        letter-spacing: -0.02em;
+        text-shadow: 0 0 18px rgba(0,160,255,0.22);
+      }
+      .subtitle {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+        max-width: 78ch;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr;
+        gap: 16px;
+        margin-top: 18px;
+      }
+      @media (max-width: 960px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+
+      .panel {
+        background: linear-gradient(180deg, rgba(10,14,24,0.75), rgba(6,9,16,0.55));
+        border: 1px solid rgba(72, 255, 234, 0.24);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+      }
+      .panel::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, rgba(72,255,234,0.14), transparent 22%),
+          radial-gradient(900px 260px at 50% 0%, rgba(0,160,255,0.18), transparent 55%);
+        opacity: 0.55;
+        pointer-events: none;
+      }
+      .panel-inner {
+        position: relative;
+        padding: 18px;
+      }
+
+      .hud {
+        display: grid;
+        gap: 14px;
+      }
+      .hud-top {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(72,255,234,0.26);
+        background: rgba(0,0,0,0.18);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .badge strong { color: var(--text); font-weight: 600; }
+      .meter {
+        width: 230px;
+        height: 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(72,255,234,0.22);
+        overflow: hidden;
+        background: rgba(0,0,0,0.28);
+        position: relative;
+      }
+      .meter > span {
+        display: block;
+        height: 100%;
+        width: 64%;
+        background: linear-gradient(90deg, rgba(72,255,234,0.2), rgba(72,255,234,0.85), rgba(0,160,255,0.85));
+        box-shadow: 0 0 18px rgba(72,255,234,0.45);
+        animation: fill 6s ease-in-out infinite;
+      }
+      @keyframes fill {
+        0% { transform: translateX(-35%); }
+        50% { transform: translateX(10%); }
+        100% { transform: translateX(-35%); }
+      }
+
+      .b-text {
+        padding: 14px;
+        border-radius: var(--radius2);
+        border: 1px solid rgba(0,160,255,0.2);
+        background: rgba(0,0,0,0.22);
+        position: relative;
+      }
+      .b-text h2 {
+        margin: 0 0 6px 0;
+        font-family: var(--mono);
+        font-size: 14px;
+        letter-spacing: 0.12em;
+        color: rgba(72,255,234,0.92);
+        text-transform: uppercase;
+      }
+      .b-text p {
+        margin: 0;
+        color: rgba(233,243,255,0.86);
+        font-size: 15px;
+        line-height: 1.75;
+      }
+      .b-text .cursor {
+        display: inline-block;
+        width: 9px;
+        height: 1.05em;
+        transform: translateY(2px);
+        margin-left: 6px;
+        background: rgba(72,255,234,0.9);
+        box-shadow: 0 0 12px rgba(72,255,234,0.55);
+        animation: blink 1.1s steps(2, end) infinite;
+      }
+      @keyframes blink { 50% { opacity: 0; } }
+
+      .cta-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn {
+        appearance: none;
+        border: 1px solid rgba(72,255,234,0.28);
+        background: linear-gradient(180deg, rgba(72,255,234,0.15), rgba(0,0,0,0.25));
+        color: rgba(233,243,255,0.92);
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-family: var(--mono);
+        font-size: 13px;
+        letter-spacing: 0.06em;
+        cursor: pointer;
+        box-shadow: 0 0 0 rgba(72,255,234,0);
+        transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease;
+      }
+      .btn:hover {
+        transform: translateY(-1px);
+        border-color: rgba(72,255,234,0.6);
+        box-shadow: 0 0 22px rgba(72,255,234,0.22);
+      }
+      .btn:active { transform: translateY(0); }
+      .btn.secondary {
+        border-color: rgba(0,160,255,0.22);
+        background: linear-gradient(180deg, rgba(0,160,255,0.12), rgba(0,0,0,0.25));
+      }
+      .btn[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .side {
+        display: grid;
+        gap: 16px;
+      }
+
+      .kv {
+        display: grid;
+        gap: 10px;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 10px;
+        align-items: start;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(0,0,0,0.20);
+        border: 1px solid rgba(72,255,234,0.14);
+      }
+      .row .k {
+        color: rgba(206,226,255,0.72);
+        font-family: var(--mono);
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .row .v {
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: rgba(233,243,255,0.9);
+        word-break: break-word;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(72,255,234,0.2);
+        background: rgba(0,0,0,0.16);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: rgba(206,226,255,0.75);
+      }
+      .pill .led {
+        width: 8px; height: 8px; border-radius: 999px;
+        background: rgba(206,226,255,0.35);
+        box-shadow: none;
+      }
+      .pill.ok .led { background: var(--ok); box-shadow: 0 0 14px rgba(125,255,106,0.5); }
+      .pill.warn .led { background: #ffd36a; box-shadow: 0 0 14px rgba(255,211,106,0.45); }
+      .pill.bad .led { background: var(--danger); box-shadow: 0 0 14px rgba(255,61,136,0.45); }
+
+      .fineprint {
+        margin: 0;
+        color: rgba(206,226,255,0.65);
+        font-size: 12.5px;
+        line-height: 1.65;
+      }
+      .fineprint code {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: rgba(72,255,234,0.9);
+      }
+
+      dialog {
+        border: 1px solid rgba(72,255,234,0.28);
+        border-radius: 18px;
+        background: rgba(6,9,16,0.82);
+        box-shadow: 0 0 40px rgba(0,160,255,0.18), 0 0 120px rgba(72,255,234,0.10);
+        color: var(--text);
+        padding: 0;
+        width: min(720px, calc(100% - 28px));
+      }
+      dialog::backdrop {
+        background: rgba(0,0,0,0.62);
+        backdrop-filter: blur(5px);
+      }
+      .modal {
+        padding: 16px;
+      }
+      .modal header {
+        margin: 0 0 10px 0;
+      }
+      .modal h3 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: -0.01em;
+      }
+      .modal p {
+        margin: 10px 0 0 0;
+        color: rgba(206,226,255,0.75);
+        line-height: 1.65;
+      }
+      .modal ul {
+        margin: 12px 0 0 18px;
+        color: rgba(206,226,255,0.75);
+        line-height: 1.65;
+      }
+      .modal .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid rgba(72,255,234,0.16);
+      }
+
+      a {
+        color: rgba(72,255,234,0.95);
+        text-decoration: none;
+      }
+      a:hover { text-decoration: underline; }
+    </style>
+  </head>
+  <body>
+    <div class="noise"></div>
+    <div class="scanline"></div>
+
+    <main class="wrap">
+      <header>
+        <div class="kicker"><span class="dot"></span> secure access gateway · build 26.04</div>
+        <h1>机密档案访问终端</h1>
+        <p class="subtitle">
+          这是一个演示页面：只有在你明确点击同意后，它才会在<strong>本页</strong>显示你的公网 IP，以及（若你授权）浏览器定位信息。不会把这些数据发送到任何接收端。
+        </p>
+      </header>
+
+      <section class="grid" aria-label="main content">
+        <article class="panel">
+          <div class="panel-inner hud">
+            <div class="hud-top">
+              <div class="badge">
+                <span style="opacity:.8">session</span>
+                <strong id="sessionId">—</strong>
+              </div>
+              <div class="meter" aria-hidden="true"><span></span></div>
+            </div>
+
+            <div class="b-text" aria-label="Text B">
+              <h2>Text B</h2>
+              <p id="textB">
+                「当你看到这段文字，说明你已经穿过了噪声与假信号。下一步，按下按钮，解锁档案。」<span class="cursor" aria-hidden="true"></span>
+              </p>
+            </div>
+
+            <div class="cta-row">
+              <button class="btn" id="btnStart">解锁机密档案</button>
+              <button class="btn secondary" id="btnReset" disabled>重置本页结果</button>
+              <span class="pill warn" id="statusPill" role="status" aria-live="polite">
+                <span class="led" aria-hidden="true"></span>
+                <span id="statusText">等待同意</span>
+              </span>
+            </div>
+
+            <p class="fineprint">
+              说明：公网 IP 来自 <code>api.ipify.org</code>；城市/地区解析来自 <code>api.bigdatacloud.net</code> 的反向地理编码（仅基于你授权的经纬度）。若你拒绝定位，本页仍可显示 IP。
+            </p>
+          </div>
+        </article>
+
+        <aside class="panel">
+          <div class="panel-inner side">
+            <div class="kv" aria-label="results">
+              <div class="row">
+                <div class="k">公 网 IP</div>
+                <div class="v" id="ipValue">—</div>
+              </div>
+              <div class="row">
+                <div class="k">定位权限</div>
+                <div class="v" id="permValue">—</div>
+              </div>
+              <div class="row">
+                <div class="k">经 纬 度</div>
+                <div class="v" id="latlngValue">—</div>
+              </div>
+              <div class="row">
+                <div class="k">城市 / 地区</div>
+                <div class="v" id="placeValue">—</div>
+              </div>
+              <div class="row">
+                <div class="k">地图链接</div>
+                <div class="v" id="mapValue">—</div>
+              </div>
+              <div class="row">
+                <div class="k">运行日志</div>
+                <div class="v" id="logValue">—</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <dialog id="consentDialog" aria-labelledby="consentTitle">
+      <div class="modal">
+        <header>
+          <div class="kicker"><span class="dot"></span> consent required</div>
+          <h3 id="consentTitle">在继续之前，请确认</h3>
+        </header>
+        <p>
+          你即将启动一次“本地信息展示”流程。本页会在你同意后：
+        </p>
+        <ul>
+          <li>请求并显示你的公网 IP（通过公开 IP 服务查询）。</li>
+          <li>请求定位权限（若你允许）并显示经纬度；再尝试解析城市/地区用于展示。</li>
+          <li><strong>不会</strong>把这些信息发送到任何接收端或存储到服务器。</li>
+        </ul>
+        <p>
+          你可以随时拒绝定位；也可以点击“重置”清空本页显示结果。
+        </p>
+        <div class="actions">
+          <button class="btn secondary" id="btnDecline">取消</button>
+          <button class="btn" id="btnAgree">我同意并开始</button>
+        </div>
+      </div>
+    </dialog>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      const els = {
+        sessionId: $("sessionId"),
+        btnStart: $("btnStart"),
+        btnReset: $("btnReset"),
+        statusPill: $("statusPill"),
+        statusText: $("statusText"),
+        ipValue: $("ipValue"),
+        permValue: $("permValue"),
+        latlngValue: $("latlngValue"),
+        placeValue: $("placeValue"),
+        mapValue: $("mapValue"),
+        logValue: $("logValue"),
+        consentDialog: $("consentDialog"),
+        btnAgree: $("btnAgree"),
+        btnDecline: $("btnDecline"),
+      };
+
+      const state = {
+        started: false,
+        ip: null,
+        geo: null,
+        place: null,
+        errors: [],
+      };
+
+      function setStatus(kind, text) {
+        els.statusText.textContent = text;
+        els.statusPill.classList.remove("ok", "warn", "bad");
+        els.statusPill.classList.add(kind);
+      }
+
+      function log(line) {
+        const now = new Date();
+        const stamp = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        const prev = els.logValue.textContent === "—" ? "" : (els.logValue.textContent + "\n");
+        els.logValue.textContent = (prev + `[${stamp}] ${line}`).slice(-2400);
+      }
+
+      function toFixed6(n) {
+        return typeof n === "number" ? (Math.round(n * 1e6) / 1e6).toFixed(6) : "—";
+      }
+
+      function setMapLink(lat, lng) {
+        if (typeof lat !== "number" || typeof lng !== "number") {
+          els.mapValue.textContent = "—";
+          return;
+        }
+        const href = `https://www.openstreetmap.org/?mlat=${encodeURIComponent(lat)}&mlon=${encodeURIComponent(lng)}#map=16/${encodeURIComponent(lat)}/${encodeURIComponent(lng)}`;
+        els.mapValue.innerHTML = `<a href="${href}" target="_blank" rel="noreferrer noopener">打开地图（OpenStreetMap）</a>`;
+      }
+
+      async function fetchPublicIp() {
+        log("查询公网 IP…");
+        const r = await fetch("https://api.ipify.org?format=json", { cache: "no-store" });
+        if (!r.ok) throw new Error(`IP 服务返回 ${r.status}`);
+        const data = await r.json();
+        if (!data || typeof data.ip !== "string") throw new Error("IP 服务响应异常");
+        state.ip = data.ip;
+        els.ipValue.textContent = data.ip;
+        log(`公网 IP：${data.ip}`);
+      }
+
+      function getPosition(opts) {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("此浏览器不支持 Geolocation"));
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(resolve, reject, opts);
+        });
+      }
+
+      function permNameFromErr(err) {
+        if (!err) return "未知";
+        if (err.code === 1) return "已拒绝";
+        if (err.code === 2) return "不可用";
+        if (err.code === 3) return "超时";
+        return "未知";
+      }
+
+      async function fetchGeo() {
+        log("请求定位权限…");
+        els.permValue.textContent = "请求中";
+
+        try {
+          const pos = await getPosition({
+            enableHighAccuracy: false,
+            timeout: 12000,
+            maximumAge: 0,
+          });
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          state.geo = { lat, lng, accuracy: pos.coords.accuracy };
+
+          els.permValue.textContent = "已允许";
+          els.latlngValue.textContent = `${toFixed6(lat)}, ${toFixed6(lng)} (±${Math.round(pos.coords.accuracy)}m)`;
+          setMapLink(lat, lng);
+          log(`定位成功：${toFixed6(lat)}, ${toFixed6(lng)}（±${Math.round(pos.coords.accuracy)}m）`);
+
+          return state.geo;
+        } catch (err) {
+          const label = permNameFromErr(err);
+          els.permValue.textContent = label;
+          els.latlngValue.textContent = "—";
+          setMapLink(null, null);
+          log(`定位未获得：${label}${err && err.message ? `（${err.message}）` : ""}`);
+          throw err;
+        }
+      }
+
+      async function reverseGeocode(lat, lng) {
+        log("解析城市/地区…");
+        const url =
+          `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lng)}&localityLanguage=zh`;
+        const r = await fetch(url, { cache: "no-store" });
+        if (!r.ok) throw new Error(`反向地理编码返回 ${r.status}`);
+        const data = await r.json();
+
+        const parts = [
+          data.city || data.locality,
+          data.principalSubdivision,
+          data.countryName,
+        ].filter(Boolean);
+
+        const place = parts.length ? parts.join(" · ") : "（解析不到城市信息）";
+        state.place = place;
+        els.placeValue.textContent = place;
+        log(`城市/地区：${place}`);
+      }
+
+      function resetUI() {
+        state.started = false;
+        state.ip = null;
+        state.geo = null;
+        state.place = null;
+        state.errors = [];
+
+        els.ipValue.textContent = "—";
+        els.permValue.textContent = "—";
+        els.latlngValue.textContent = "—";
+        els.placeValue.textContent = "—";
+        els.mapValue.textContent = "—";
+        els.logValue.textContent = "—";
+
+        els.btnReset.disabled = true;
+        els.btnStart.disabled = false;
+        setStatus("warn", "等待同意");
+      }
+
+      async function run() {
+        if (state.started) return;
+        state.started = true;
+
+        els.btnStart.disabled = true;
+        els.btnReset.disabled = false;
+        setStatus("warn", "执行中…");
+
+        try {
+          await fetchPublicIp();
+        } catch (err) {
+          log(`公网 IP 获取失败：${err && err.message ? err.message : String(err)}`);
+          els.ipValue.textContent = "（失败）";
+          state.errors.push(err);
+        }
+
+        try {
+          const geo = await fetchGeo();
+          try {
+            await reverseGeocode(geo.lat, geo.lng);
+          } catch (err) {
+            log(`城市/地区解析失败：${err && err.message ? err.message : String(err)}`);
+            els.placeValue.textContent = "（解析失败）";
+          }
+        } catch (err) {
+          els.placeValue.textContent = "—";
+        }
+
+        const okIp = typeof state.ip === "string" && state.ip.length > 0;
+        const okGeo = state.geo && typeof state.geo.lat === "number";
+
+        if (okIp && okGeo) setStatus("ok", "完成（IP + 定位已显示）");
+        else if (okIp) setStatus("warn", "完成（仅 IP；定位未授权/不可用）");
+        else setStatus("bad", "完成（信息获取失败）");
+      }
+
+      function showConsent() {
+        if (typeof els.consentDialog.showModal === "function") {
+          els.consentDialog.showModal();
+        } else {
+          // 极少数旧浏览器兜底
+          run();
+        }
+      }
+
+      function seedSession() {
+        const bytes = new Uint8Array(10);
+        crypto.getRandomValues(bytes);
+        const hex = Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+        els.sessionId.textContent = hex.slice(0, 10).toUpperCase();
+      }
+
+      els.btnStart.addEventListener("click", showConsent);
+      els.btnDecline.addEventListener("click", () => {
+        els.consentDialog.close();
+        log("用户取消。");
+      });
+      els.btnAgree.addEventListener("click", async () => {
+        els.consentDialog.close();
+        await run();
+      });
+      els.btnReset.addEventListener("click", () => {
+        resetUI();
+        log("已重置。");
+      });
+
+      seedSession();
+      resetUI();
+    </script>
+  </body>
+</html>
+
